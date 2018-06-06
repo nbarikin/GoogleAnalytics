@@ -5,6 +5,11 @@
   <title>Hello Analytics Reporting API V4</title>
   <meta name="google-signin-client_id" content="782284382450-c80tc3d5t0vdf2646mbs81ibj4om6p0r.apps.googleusercontent.com">
   <meta name="google-signin-scope" content="https://www.googleapis.com/auth/analytics.readonly">
+  
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/heatmap.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  
 </head>
 <body>
 
@@ -14,10 +19,91 @@
 <p class="g-signin2" data-onsuccess="queryReports"></p>
 
 <!-- The API response will be printed here. -->
-<textarea cols="80" rows="20" id="query-output"></textarea>
+<!--<textarea cols="80" rows="20" id="query-output"></textarea>-->
+<div id="container" style="height: 600px; min-width: 300px; max-width: 300px; margin: 0 auto"></div>
+
+<script>
+    
+    
+clientId = '782284382450-c80tc3d5t0vdf2646mbs81ibj4om6p0r.apps.googleusercontent.com';
+    
+(function(w,d,s,g,js,fs){
+  g=w.gapi||(w.gapi={});g.analytics={q:[],ready:function(f){this.q.push(f);}};
+  js=d.createElement(s);fs=d.getElementsByTagName(s)[0];
+  js.src='https://apis.google.com/js/platform.js';
+  fs.parentNode.insertBefore(js,fs);js.onload=function(){g.load('analytics');};
+}(window,document,'script'));
+</script>
+
 
 <script>
   // Replace with your view ID.
+    
+    
+    
+    
+function draw(data) {  
+
+    Highcharts.chart('container', {
+
+        chart: {
+            type: 'heatmap',
+            marginTop: 40,
+            marginBottom: 80,
+            plotBorderWidth: 1
+        },
+
+
+        title: {
+            text: 'Users by time of day'
+        },
+
+        xAxis: {
+            categories: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        },
+
+        yAxis: {
+            title: null,
+            categories: ['11pm','10pm','9pm','8pm','7pm','6pm','5pm','4pm','3pm',]
+        },
+
+        colorAxis: {
+            min: 0,
+            minColor: '#FFFFFF',
+            maxColor: Highcharts.getOptions().colors[0]
+        },
+
+        legend: {
+            align: 'right',
+            layout: 'vertical',
+            margin: 0,
+            verticalAlign: 'top',
+            y: 25,
+            symbolHeight: 280
+        },
+
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> sold <br><b>' +
+                    this.point.value + '</b> items on <br><b>' + this.series.yAxis.categories[this.point.y] + '</b>';
+            }
+        },
+
+        series: [{
+            name: 'Sales per employee',
+            borderWidth: 1,
+            data: data,
+            dataLabels: {
+                enabled: false,
+                color: '#000000'
+            }
+        }]
+
+    });
+}
+    
+
+    
   var VIEW_ID = '137209425';
 
   // Query the API and print the results to the page.
@@ -32,15 +118,23 @@
             viewId: VIEW_ID,
             dateRanges: [
               {
-                startDate: '7daysAgo',
+                startDate: '30daysAgo',
                 endDate: 'today'
               }
             ],
             metrics: [
               {
-                expression: 'ga:sessions'
+                expression: 'ga:users',                
               }
-            ]
+            ],
+            "dimensions": [
+                {
+                  "name": "ga:dayOfWeek"
+                },
+                {
+                  "name": "ga:hour"
+                }
+              ]
           }
         ]
       }
@@ -48,8 +142,20 @@
   }
 
   function displayResults(response) {
-    var formattedJson = JSON.stringify(response.result, null, 2);
-    document.getElementById('query-output').value = formattedJson;
+      console.log(response.result.reports[0].data.rows);
+      
+      var a = response.result.reports[0].data.rows.map(function(item) {
+          var aa = []
+          aa[0] = +item.dimensions[0];
+          aa[1] = +item.dimensions[1];
+          aa[2] = +item.metrics[0].values[0];
+          return aa;
+      });
+      console.log(a);
+      draw(a);
+      
+//    var formattedJson = JSON.stringify(response.result, null, 2);
+//    document.getElementById('query-output').value = formattedJson;
   }
 </script>
 
