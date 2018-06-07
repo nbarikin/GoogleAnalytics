@@ -10,17 +10,41 @@
 <script src="https://code.highcharts.com/modules/heatmap.js"></script>
     <script src="https://code.highcharts.com/modules/exporting.js"></script>
   
+    <style>
+    
+    
+        .abcRioButton {
+            box-shadow: none !important;
+            border-radius: 2px !important;
+        }
+        
+        .abcRioButtonLightBlue {
+            background-color: #42A5F5 !important;
+            color: #FFF !important;
+        } 
+        
+        .abcRioButtonLightBlue svg path{
+            fill: #FFF !important;
+        }
+        
+        .abcRioButtonLightBlue svg path:last-child{
+            fill: none !important;
+        }
+        
+        
+    
+    
+    </style>
+  
+  
 </head>
 <body>
 
-<h1>Hello Analytics Reporting API V4</h1>
-
 <!-- The Sign-in button. This will run `queryReports()` on success. -->
-<p class="g-signin2" data-onsuccess="queryReports"></p>
+<div id="container" style="height: 500px; width: 318px;"></div>
+<p class="g-signin2" data-onsuccess="queryReports" style="margin-left: 10px;"></p>
 
 <!-- The API response will be printed here. -->
-<!--<textarea cols="80" rows="20" id="query-output"></textarea>-->
-<div id="container" style="height: 600px; min-width: 300px; max-width: 300px; margin: 0 auto"></div>
 
 <script>
     
@@ -50,55 +74,86 @@ function draw(data) {
             type: 'heatmap',
             marginTop: 40,
             marginBottom: 80,
-            plotBorderWidth: 1
+            plotBorderWidth: 1,
+            plotBorderColor: '#FFF',
         },
 
 
         title: {
-            text: 'Users by time of day'
+            text: 'Users by time of day',
+            align: 'left',
+            style: {'font' :'400 14px Roboto,sans-serif', 'color': 'rgba(0,0,0,0.54)'},
         },
 
         xAxis: {
-            categories: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+            categories: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+            tickWidth: 0
         },
 
         yAxis: {
             title: null,
-            categories: ['11pm','10pm','9pm','8pm','7pm','6pm','5pm','4pm','3pm',]
-        },
-
-        colorAxis: {
-            min: 0,
-            minColor: '#FFFFFF',
-            maxColor: Highcharts.getOptions().colors[0]
+            categories: ['11pm','10pm','9pm','8pm','7pm','6pm','5pm','4pm','3pm','2pm','1pm','12am','11am','10am','9am','8am','7am','6am','5am','4am','3am','2am','1am','12am'],
+            opposite: true,
+            startOnTick: false,
+            endOnTick: false,
+            tickPositions: [1,3,5,7,9,11,13,15,17,19,21,23],
         },
 
         legend: {
-            align: 'right',
-            layout: 'vertical',
+            align: 'bottom',
+            layout: 'horisontal',
             margin: 0,
-            verticalAlign: 'top',
-            y: 25,
-            symbolHeight: 280
+            verticalAlign: 'bottom',
+            y: 5,
+            x:-8,
+            symbolWidth: 252
+        },
+        
+        credits: {
+            enabled: false
         },
 
         tooltip: {
             formatter: function () {
-                return '<b>' + this.series.xAxis.categories[this.point.x] + '</b> sold <br><b>' +
-                    this.point.value + '</b> items on <br><b>' + this.series.yAxis.categories[this.point.y] + '</b>';
+                return this.series.xAxis.categories[this.point.x] + ' ' + this.series.yAxis.categories[this.point.y]+ '<br><b>' +
+                    this.point.value + '</b><br> Users';
+            }
+        },
+        
+        colorAxis: {
+            stops: [
+                [0, '#93d5ed'],
+                [0.249, '#93d5ed'],
+                
+                [0.25, '#45a5f5'],
+                [0.499, '#45a5f5'],
+                
+                [0.50, '#4285f4'],
+                [0.749, '#4285f4'],
+                
+                [0.75, '#2f5ec4'],
+                [1, '#2f5ec4']
+            ],
+            min: 0,
+            max: 60,
+            tickInterval: 15,
+            startOnTick: false,
+            endOnTick: false,
+            labels: {
+                format: '{value}'
             }
         },
 
         series: [{
             name: 'Sales per employee',
-            borderWidth: 1,
+            borderWidth: 3,
+            borderColor: '#FFF',
             data: data,
             dataLabels: {
                 enabled: false,
                 color: '#000000'
             }
         }]
-
     });
 }
     
@@ -147,10 +202,11 @@ function draw(data) {
       var a = response.result.reports[0].data.rows.map(function(item) {
           var aa = []
           aa[0] = +item.dimensions[0];
-          aa[1] = +item.dimensions[1];
+          aa[1] = 23 - item.dimensions[1];
           aa[2] = +item.metrics[0].values[0];
           return aa;
       });
+
       console.log(a);
       draw(a);
       
