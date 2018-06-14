@@ -184,6 +184,7 @@
         }
 
         function displayResults(response) {
+            resp = JSON.stringify(response);
             var a = response.result.reports[0].data.rows.map(function(item) {
                 var aa = []
                 aa[0] = +item.dimensions[0];
